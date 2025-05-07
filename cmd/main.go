@@ -3,6 +3,7 @@ package main
 import (
 	"auth-service/config"
 	"auth-service/internal/handlers"
+	"fmt"
 	"github.com/gin-gonic/gin"
 )
 
@@ -28,4 +29,5 @@ func main() {
 
 	_ = r.Run(":8080")
 
+	fmt.Println("hello")
 }
