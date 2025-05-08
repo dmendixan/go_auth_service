@@ -17,7 +17,7 @@ func main() {
 	api.POST("/login", handlers.Login)
 	api.POST("/refresh", handlers.Refresh)
 
-	api.GET("/profile", handlers.AuthMiddleware(""), handlers.Profile)
+	api.GET("/profile", handlers.AuthMiddleware(""), handlers.Profile(config.DB))
 
 	admin := api.Group("/admin")
 	admin.Use(handlers.AuthMiddleware("admin")) // Только админ

@@ -11,8 +11,8 @@ import (
 
 func Login(c *gin.Context) {
 	var req struct {
-		Email    string json:"email"
-		Password string json:"password"
+		Email    string `json:"email"`
+		Password string `json:"password"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -51,9 +51,9 @@ func Login(c *gin.Context) {
 
 func Register(c *gin.Context) {
 	var req struct {
-		Name     string json:"name" binding:"required"
-		Email    string json:"email" binding:"required,email"
-		Password string json:"password" binding:"required,min=6"
+		Name     string `json:"name" binding:"required"`
+		Email    string `json:"email" binding:"required,email"`
+		Password string `json:"password" binding:"required,min=6"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -87,9 +87,10 @@ func Register(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, gin.H{"message": "User registered successfully"})
 }
+
 func Refresh(c *gin.Context) {
 	var request struct {
-		RefreshToken string json:"refresh_token"
+		RefreshToken string `json:"refresh_token"`
 	}
 	if err := c.ShouldBindJSON(&request); err != nil || request.RefreshToken == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Refresh token required"})
