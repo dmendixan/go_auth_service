@@ -6,6 +6,7 @@ import (
 	"auth-service/internal/services"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 	"net/http"
 )
 
@@ -49,43 +50,45 @@ func Login(c *gin.Context) {
 	})
 }
 
-func Register(c *gin.Context) {
-	var req struct {
-		Name     string `json:"name" binding:"required"`
-		Email    string `json:"email" binding:"required,email"`
-		Password string `json:"password" binding:"required,min=6"`
-	}
+func RegisterWithDB(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var req struct {
+			Name     string `json:"name" binding:"required"`
+			Email    string `json:"email" binding:"required,email"`
+			Password string `json:"password" binding:"required,min=6"`
+		}
 
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
+		if err := c.ShouldBindJSON(&req); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
 
-	var existing models.User
-	if err := config.DB.Where("email = ?", req.Email).First(&existing).Error; err == nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Email already registered"})
-		return
-	}
+		var existing models.User
+		if err := db.Where("email = ?", req.Email).First(&existing).Error; err == nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Email already registered"})
+			return
+		}
 
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to hash password"})
-		return
-	}
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to hash password"})
+			return
+		}
 
-	user := models.User{
-		Name:         req.Name,
-		Email:        req.Email,
-		PasswordHash: string(hashedPassword),
-		Role:         "user",
-	}
+		user := models.User{
+			Name:         req.Name,
+			Email:        req.Email,
+			PasswordHash: string(hashedPassword),
+			Role:         "user",
+		}
 
-	if err := config.DB.Create(&user).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
-		return
-	}
+		if err := db.Create(&user).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
+			return
+		}
 
-	c.JSON(http.StatusCreated, gin.H{"message": "User registered successfully"})
+		c.JSON(http.StatusCreated, gin.H{"message": "User registered successfully"})
+	}
 }
 
 func Refresh(c *gin.Context) {

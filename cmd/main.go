@@ -13,11 +13,11 @@ func main() {
 	r := gin.Default()
 	api := r.Group("/api")
 
-	api.POST("/register", handlers.Register)
+	api.POST("/register", handlers.RegisterWithDB(config.DB))
 	api.POST("/login", handlers.Login)
 	api.POST("/refresh", handlers.Refresh)
 
-	api.GET("/profile", handlers.AuthMiddleware(""), handlers.Profile(config.DB))
+	api.GET("/profile", handlers.AuthMiddleware(""), handlers.ProfileHandler(config.DB))
 
 	admin := api.Group("/admin")
 	admin.Use(handlers.AuthMiddleware("admin")) // Только админ

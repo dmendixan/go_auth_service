@@ -8,9 +8,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func Profile(db *gorm.DB) gin.HandlerFunc {
+func ProfileHandler(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		userID := c.GetUint("user_id")
+		userID := c.GetUint("user_id") // ✅ достаем user_id из контекста
 
 		var user models.User
 		if err := db.First(&user, userID).Error; err != nil {
