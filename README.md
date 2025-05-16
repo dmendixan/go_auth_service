@@ -24,7 +24,7 @@
 
 ### 1. Клонируйте проект
 ```bash
-git clone https://github.com/your-username/auth-service.git
+git clone https://github.com/dmendixan/go_auth_service.git
 cd auth-service
 ```
 
@@ -82,7 +82,8 @@ go test ./...
 - `/api/refresh`
 - `/api/profile`
 - `/api/admin/users`
-
+- `/api/admin/users/delete`
+- `/api/admin/users/update`
 ---
 
 ## 📬 Эндпоинты
