@@ -6,8 +6,8 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"errors"
-	"fmt"
 	"github.com/golang-jwt/jwt/v5"
+	"gorm.io/gorm"
 	"time"
 )
 
@@ -19,7 +19,6 @@ type Claims struct {
 	jwt.RegisteredClaims
 }
 
-// GenerateAccessToken создает JWT access token с указанным сроком жизни (например, 1 час)
 func GenerateAccessToken(userID uint, role string) (string, error) {
 	expirationTime := time.Now().Add(1 * time.Hour)
 
@@ -30,18 +29,13 @@ func GenerateAccessToken(userID uint, role string) (string, error) {
 			ExpiresAt: jwt.NewNumericDate(expirationTime),
 		},
 	}
-	fmt.Printf("%+v\n", jwtKey)
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	fmt.Printf("%+v\n", token)
-
-	signedToken, err := token.SignedString([]byte(config.JWTSecret))
-
-	fmt.Printf("%+v\n", err)
+	signedToken, err := token.SignedString(jwtKey)
 	return signedToken, err
 }
 
-func GenerateRefreshToken(userID uint) (string, error) {
+func GenerateRefreshToken(db *gorm.DB, userID uint) (string, error) {
 	tokenBytes := make([]byte, 32)
 	if _, err := rand.Read(tokenBytes); err != nil {
 		return "", err
@@ -53,20 +47,19 @@ func GenerateRefreshToken(userID uint) (string, error) {
 		Token:     refreshToken,
 		ExpiresAt: time.Now().Add(7 * 24 * time.Hour),
 	}
-	if err := config.DB.Create(&rt).Error; err != nil {
+	if err := db.Create(&rt).Error; err != nil {
 		return "", err
 	}
 	return refreshToken, nil
 }
 
-func ValidateRefreshToken(token string) (*models.RefreshToken, error) {
+func ValidateRefreshToken(db *gorm.DB, token string) (*models.RefreshToken, error) {
 	var rt models.RefreshToken
-	if err := config.DB.Where("token = ?", token).First(&rt).Error; err != nil {
+	if err := db.Where("token = ?", token).First(&rt).Error; err != nil {
 		return nil, err
 	}
 	if rt.ExpiresAt.Before(time.Now()) {
 		return nil, errors.New("refresh token expired")
 	}
-
 	return &rt, nil
 }

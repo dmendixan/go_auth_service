@@ -10,9 +10,10 @@ import (
 	"gorm.io/gorm"
 )
 
-var DB *gorm.DB
-
-var JWTSecret = os.Getenv("JWT_SECRET")
+var (
+	DB        *gorm.DB
+	JWTSecret string // ✅ просто объявляем, но не инициализируем
+)
 
 func InitDB() {
 	err := godotenv.Load()
@@ -20,9 +21,9 @@ func InitDB() {
 		log.Fatal("No .env file found")
 	}
 
-	JWTSecret = os.Getenv("JWT_SECRET")
+	JWTSecret = os.Getenv("JWT_SECRET") // ⬅️ теперь это сработает!
 	if JWTSecret == "" {
-		log.Fatal("JWT_SECRET not set in .env")
+		log.Fatal("JWT_SECRET is not set!")
 	}
 
 	dsn := fmt.Sprintf(

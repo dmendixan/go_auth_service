@@ -32,13 +32,14 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	accessToken, err := services.GenerateAccessToken(user.ID, user.Role)
+	accessToken, err := services.GenerateJWT(user.ID, user.Role)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate access token"})
 		return
 	}
 
-	refreshToken, err := services.GenerateRefreshToken(user.ID)
+	refreshToken, err := services.GenerateRefreshToken(config.DB, user.ID)
+
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate refresh token"})
 		return
@@ -101,7 +102,8 @@ func Refresh(c *gin.Context) {
 	}
 
 	// Проверка refresh token в БД
-	rt, err := services.ValidateRefreshToken(request.RefreshToken)
+	rt, err := services.ValidateRefreshToken(config.DB, request.RefreshToken)
+
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired refresh token"})
 		return
@@ -115,14 +117,16 @@ func Refresh(c *gin.Context) {
 	}
 
 	// Генерация нового access token
-	accessToken, err := services.GenerateAccessToken(user.ID, user.Role)
+	accessToken, err := services.GenerateJWT(user.ID, user.Role)
+
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate access token"})
 		return
 	}
 
 	// Генерация нового refresh token (и удаление старого желательно)
-	newRefreshToken, err := services.GenerateRefreshToken(user.ID)
+	newRefreshToken, err := services.GenerateRefreshToken(config.DB, user.ID)
+
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate refresh token"})
 		return

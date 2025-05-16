@@ -22,9 +22,11 @@ func main() {
 	admin := api.Group("/admin")
 	admin.Use(handlers.AuthMiddleware("admin")) // Только админ
 	{
-		admin.GET("/users", handlers.GetAllUsers)
-		admin.DELETE("/users/:id", handlers.DeleteUser)
-		admin.PUT("/users/:id", handlers.UpdateUser)
+		admin.GET("/users", handlers.GetAllUsersWithDB(config.DB))
+
+		admin.DELETE("/users/:id", handlers.DeleteUserWithDB(config.DB))
+
+		admin.PUT("/users/:id", handlers.UpdateUserWithDB(config.DB))
 	}
 
 	_ = r.Run(":8080")
