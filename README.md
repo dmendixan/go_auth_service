@@ -108,7 +108,7 @@ go test ./...
   - выполняется `go test ./...`
   - проверяется работоспособность проекта
 
-![Go CI](https://github.com/dmendixan/auth-service/actions/workflows/go.yml/badge.svg)
+![Go CI](https://github.com/dmendixan/go_auth_service/actions/workflows/go.yml/badge.svg)
 
 ---
 
