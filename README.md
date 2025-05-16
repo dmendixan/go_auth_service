@@ -118,7 +118,7 @@ go test ./...
 > **Меңдіхан Дінмұхаммед**  
 > Практикант в АО "Казахтелеком"  
 > Backend-разработка на Go  
-> Telegram: [@dimashsmash](https://t.me/dmendixan)
+> Telegram: [@dmendixan](https://t.me/dmendixan)
 
 
 
