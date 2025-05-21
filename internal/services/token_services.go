@@ -1,7 +1,6 @@
 package services
 
 import (
-	"auth-service/config"
 	"auth-service/internal/models"
 	"crypto/rand"
 	"encoding/hex"
@@ -11,28 +10,10 @@ import (
 	"time"
 )
 
-var jwtKey = []byte(config.JWTSecret)
-
 type Claims struct {
 	UserID uint   `json:"user_id"`
 	Role   string `json:"role"`
 	jwt.RegisteredClaims
-}
-
-func GenerateAccessToken(userID uint, role string) (string, error) {
-	expirationTime := time.Now().Add(1 * time.Hour)
-
-	claims := &Claims{
-		UserID: userID,
-		Role:   role,
-		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(expirationTime),
-		},
-	}
-
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	signedToken, err := token.SignedString(jwtKey)
-	return signedToken, err
 }
 
 func GenerateRefreshToken(db *gorm.DB, userID uint) (string, error) {

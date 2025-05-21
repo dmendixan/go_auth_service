@@ -30,8 +30,6 @@ func AuthMiddleware(requiredRole string) gin.HandlerFunc {
 
 		// Парсим токен с кастомными claims
 		claims := &services.Claims{}
-		fmt.Println("JWT_SECRET being used:", config.JWTSecret)
-		fmt.Println("TOKEN STRING:", tokenString)
 		token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
 			return []byte(config.JWTSecret), nil
 		})
@@ -55,18 +53,6 @@ func AuthMiddleware(requiredRole string) gin.HandlerFunc {
 		// Передаём user_id и role дальше
 		c.Set("user_id", claims.UserID)
 		c.Set("role", claims.Role)
-		c.Next()
-	}
-}
-
-func AdminOnly() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		role, exists := c.Get("role")
-		if !exists || role != "admin" {
-			c.JSON(http.StatusForbidden, gin.H{"error": "Admin access required"})
-			c.Abort()
-			return
-		}
 		c.Next()
 	}
 }
